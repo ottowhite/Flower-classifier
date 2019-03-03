@@ -1,5 +1,42 @@
-from sklearn import tree
+import random
 import pandas as pd
+from scipy.spatial import distance
+
+def find_distance(a, b):
+    return distance.euclidean(a, b)
+
+class KNearestNeighbors:
+
+    def __init__(self):
+        self.labels = [0, 1, 2]
+        self.predictions = []
+
+    def fit(self, X_train, y_train):
+        self.X_train = X_train
+        self.y_train = y_train
+
+    def predict(self, X_test):
+        predictions = []
+        for row in X_test:
+            label = self.closest(row)
+            predictions.append(label)
+
+        return predictions
+
+    def closest(self, feature):
+        # initially it is assumed that the closes distance is the first item
+        closest_distance = find_distance(feature, self.X_train[0])
+        closest_index = 0
+
+        # iterating over the training data and testing distance, the first item has already been evaluated
+        for i in range(1, len(self.X_train)):
+            distance = find_distance(self.X_train[i], feature)
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_index = i
+
+            return self.y_train[closest_index]  # returns the label of the closes neighbour
+
 
 iris_data = pd.read_csv("iris_flower_data.csv")
 
@@ -17,8 +54,8 @@ iris_data.loc[iris_data["Species"].isin(["I. virginica"]), "Species"] = 2
 iris_data = iris_data.sample(frac=1).reset_index(drop=True)
 
 # splitting the data
-training_data = iris_data.iloc[:int(9*len(iris_data)/10), :]  # 135 items in training data (9/10 of the data)
-testing_data = iris_data.iloc[int(9*len(iris_data)/10):, :]  # 15 items in testing data (1/10 of the data)
+training_data = iris_data.iloc[:int(len(iris_data)/2), :]  # 75 items in training data (9/10 of the data)
+testing_data = iris_data.iloc[int(len(iris_data)/2):, :]  # 75 items in testing data (1/10 of the data)
 
 # splitting the training data into features and labels
 training_features = training_data.loc[:, ['Sepal length', 'Sepal width', 'Petal length', 'Petal width']].values
@@ -29,7 +66,7 @@ testing_features = testing_data.loc[:, ['Sepal length', 'Sepal width', 'Petal le
 testing_labels = testing_data.loc[:, 'Species'].values
 
 # training the decision tree with the training set
-decision_tree = tree.DecisionTreeClassifier()
+decision_tree = KNearestNeighbors()
 decision_tree.fit(training_features, training_labels)
 
 # testing the trained decision trees results against the reserved data
@@ -41,6 +78,8 @@ for x in result:
     correct += 1 if result[x] else False
 
 
-print('The decision tree correctly categorised ' + str(correct) + " of 15 flower species. ")
+print('The k nearest neigbors algorithm correctly categorised ' + str(correct) + " of 75 flower species. ")
 
-print(str(testing_features[0]) + " " + str(testing_labels[0]))
+correct = correct / 75 * 100
+
+print('The algorithm performed with ' + str(correct) + '% accuracy.' )
