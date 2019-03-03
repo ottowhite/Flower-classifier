@@ -2,7 +2,7 @@ import math
 import pandas as pd
 
 
-def find_distance_manual(a, b):
+def find_distance(a, b):
     distance_squared = 0
     for x in range(0, len(a)):
         distance_squared += (a[x] - b[x])**2
