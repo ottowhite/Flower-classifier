@@ -1,9 +1,14 @@
-import random
+import math
 import pandas as pd
-from scipy.spatial import distance
 
-def find_distance(a, b):
-    return distance.euclidean(a, b)
+
+def find_distance_manual(a, b):
+    distance_squared = 0
+    for x in range(0, len(a)):
+        distance_squared += (a[x] - b[x])**2
+    distance =  math.sqrt(distance_squared)
+    return distance
+
 
 class KNearestNeighbors:
 
@@ -77,9 +82,6 @@ correct = 0
 for x in result:
     correct += 1 if result[x] else False
 
-
 print('The k nearest neigbors algorithm correctly categorised ' + str(correct) + " of 75 flower species. ")
-
 correct = correct / 75 * 100
-
 print('The algorithm performed with ' + str(correct) + '% accuracy.' )
